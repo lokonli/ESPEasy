@@ -61,11 +61,11 @@ boolean Plugin_035(byte function, struct EventStruct *event, String& string)
         unsigned int IrBits;
         //char log[120];
 
-        char command[120];
+        char command[220];
         command[0] = 0;
-        char TmpStr1[100];
+        char TmpStr1[220];
         TmpStr1[0] = 0;
-        string.toCharArray(command, 120);
+        string.toCharArray(command, 220);
 
         String cmdCode = string;
         int argIndex = cmdCode.indexOf(',');
@@ -194,7 +194,23 @@ boolean Plugin_035(byte function, struct EventStruct *event, String& string)
             //addLog(LOG_LEVEL_INFO, log);
             //sprintf_P(log, PSTR("IR Params2: RAW Code:%s"), IrRaw.c_str());
             //addLog(LOG_LEVEL_INFO, log);
-          } else {
+          } else if (IrType.equalsIgnoreCase("GC")){
+//use code from GlobalCache website.
+// syntax: http://192.168.178.104/control?cmd=IRSEND,GC,38000,1,1,11,12,11,25,11,13,11,12,11,13,11,13,22,25,23,25,11,13,23,25,11,13,11,13,11,12,11,13,11,3356
+
+              int idx = 0;
+              unsigned int codeArray[50];
+              while(GetArgv(command, TmpStr1, 3+idx) && idx<50) {
+                codeArray[idx++]=atoi(TmpStr1);
+              }
+              if (idx==50) {
+                printWebString += F("Error. Code is too long ");
+                printWebString += F("<BR>");
+              } else {
+                Plugin_035_irSender->sendGC(codeArray,idx);
+              }
+                //}
+            } else {
             if (GetArgv(command, TmpStr1, 2)) IrType = TmpStr1;
             if (GetArgv(command, TmpStr1, 3)) IrCode = strtoul(TmpStr1, NULL, 16); //(long) TmpStr1
             if (GetArgv(command, TmpStr1, 4)) IrBits = str2int(TmpStr1);
